@@ -56,3 +56,8 @@ command.
  * `cdk docs`        open CDK documentation
 
 Enjoy!
+
+To bootstrap the bucket from profile
+```
+cdk bootstrap --profile sandbox
+```
