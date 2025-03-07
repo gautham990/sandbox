@@ -40,5 +40,8 @@ class SandboxStack(Stack):
         intranetSecurityGroup.add_ingress_rule(ec2.Peer.security_group_id(internetSecurityGroup.security_group_id), ec2.Port.all_traffic(), "Allow traffic from internet SG")
 
         #EC2 Instance
-        instance = ec2.Instance(self, "SandboxInstance", instance_type=ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE2, ec2.InstanceSize.MICRO), machine_image=ec2.MachineImage.latest_amazon_linux(), instance_name=f"{app_name}Instance",  vpc=vpc, vpc_subnets=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PRIVATE_ISOLATED), security_group=intranetSecurityGroup)
+        instance = ec2.Instance(self, "SandboxInstance", instance_type=ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE2, ec2.InstanceSize.MICRO), machine_image=ec2.MachineImage.from_ssm_parameter(
+            '/aws/service/canonical/ubuntu/server/jammy/stable/current/amd64/hvm/ebs-gp2/ami-id',
+            os=ec2.OperatingSystemType.LINUX
+        ), instance_name=f"{app_name}Instance", vpc=vpc, vpc_subnets=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PRIVATE_ISOLATED), security_group=intranetSecurityGroup)
         CfnOutput(self, "InstanceOutput", value=instance.instance_id)
