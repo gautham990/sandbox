@@ -33,4 +33,4 @@ class SandboxStack(Stack):
         internetSecurityGroup = ec2.SecurityGroup(self, "InternetSecurityGroup", vpc=vpc, allow_all_outbound=True, security_group_name=f"{vpc_name}-InternetSecurityGroup")
         internetSecurityGroup.add_ingress_rule(ec2.Peer.any_ipv4(), ec2.Port.tcp(443), "Allow HTTPS from anywhere")
         intranetSecurityGroup = ec2.SecurityGroup(self, "IntranetSecurityGroup", vpc=vpc, allow_all_outbound=True, security_group_name=f"{vpc_name}-IntranetSecurityGroup")
-        intranetSecurityGroup.add_ingress_rule(ec2.Peer.security_group_id(internetSecurityGroup.security_group_id), ec2.Port.all_traffic, "Allow traffic from intranet SG")
+        intranetSecurityGroup.add_ingress_rule(ec2.Peer.security_group_id(internetSecurityGroup.security_group_id), ec2.Port.all_tcp, "Allow traffic from intranet SG")
