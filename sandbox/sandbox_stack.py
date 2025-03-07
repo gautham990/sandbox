@@ -23,11 +23,12 @@ class SandboxStack(Stack):
                 ),
                 ec2.SubnetConfiguration(
                     name=f"{vpc_name}-PrivateSubnet",
-                    subnet_type=ec2.SubnetType.PRIVATE_WITH_EGRESS,
+                    # subnet_type=ec2.SubnetType.PRIVATE_WITH_EGRESS,
+                    ubnet_type=ec2.SubnetType.PRIVATE,
                     cidr_mask=24
                 )
             ],
-            nat_gateways=1
+            nat_gateways=0
         )
         internetSecurityGroup = ec2.SecurityGroup(self, "InternetSecurityGroup", vpc=vpc, allow_all_outbound=True, security_group_name=f"{vpc_name}-InternetSecurityGroup")
         internetSecurityGroup.add_ingress_rule(ec2.Peer.any_ipv4(), ec2.Port.tcp(443), "Allow HTTPS from anywhere")
