@@ -8,6 +8,7 @@ from aws_cdk import aws_iam as iam
 from aws_cdk import aws_logs as logs
 from constructs import Construct
 from aws_cdk import CfnOutput
+from aws_cdk import RemovalPolicy
 
 class SandboxStack(Stack):
 
@@ -52,3 +53,38 @@ class SandboxStack(Stack):
 
         #ECS Cluster
         cluster = ecs.Cluster(self, "FargateCluster",vpc=vpc,container_insights=True,cluster_name=f"{app_name}Cluster") 
+
+        execution_role = iam.Role(
+            self, "TaskExecutionRole",
+            assumed_by=iam.ServicePrincipal("ecs-tasks.amazonaws.com"),
+            managed_policies=[
+                iam.ManagedPolicy.from_aws_managed_policy_name("service-role/AmazonECSTaskExecutionRolePolicy")
+            ]
+        )
+        task_role = iam.Role(
+            self, "TaskRole",
+            assumed_by=iam.ServicePrincipal("ecs-tasks.amazonaws.com")
+        )
+        task_definition = ecs.FargateTaskDefinition(
+            self, "TaskDefinition",
+            memory_limit_mib=512,  
+            cpu=256,  
+            execution_role=execution_role,
+            task_role=task_role
+        )
+        log_group = logs.LogGroup(
+            self, "ServiceLogGroup",
+            retention=logs.RetentionDays.ONE_WEEK,
+            removal_policy=RemovalPolicy.DESTROY  
+        )
+        container = task_definition.add_container(
+            "AppContainer",
+            image=ecs.ContainerImage.from_registry("amazon/amazon-ecs-sample"),
+            logging=ecs.LogDrivers.aws_logs(
+                stream_prefix="container",
+                log_group=log_group
+            ),
+            environment={
+                "ENVIRONMENT": "production"
+            }
+        )
