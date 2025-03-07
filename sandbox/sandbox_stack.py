@@ -17,12 +17,12 @@ class SandboxStack(Stack):
         vpc = ec2.Vpc(self, f"{vpc_name}",cidr="10.0.0.0/16",max_azs=2, 
             subnet_configuration=[
                 ec2.SubnetConfiguration(
-                    name="f{vpc_name}-PublicSubnet",
+                    name=f"{vpc_name}-PublicSubnet",
                     subnet_type=ec2.SubnetType.PUBLIC,
                     cidr_mask=24
                 ),
                 ec2.SubnetConfiguration(
-                    name="f{vpc_name}-PrivateSubnet",
+                    name=f"{vpc_name}-PrivateSubnet",
                     subnet_type=ec2.SubnetType.PRIVATE_WITH_EGRESS,
                     cidr_mask=24
                 )
