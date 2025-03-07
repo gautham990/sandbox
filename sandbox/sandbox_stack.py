@@ -12,7 +12,7 @@ class SandboxStack(Stack):
 
         bucket = s3.Bucket(self, "SandboxBucket", bucket_name="sandbox-bucket-837648",removal_policy=RemovalPolicy.DESTROY) 
         CfnOutput(self, "BucketArnOutput", value=bucket.bucket_arn)
-        vpc_name = "SandboxVpc"
+        vpc_name = "Sandbox"
 
         vpc = ec2.Vpc(self, f"{vpc_name}",cidr="10.0.0.0/16",max_azs=2, 
             subnet_configuration=[
@@ -29,3 +29,7 @@ class SandboxStack(Stack):
             ],
             nat_gateways=1
         )
+        internetSecurityGroup = ec2.SecurityGroup(self, "InternetSecurityGroup", vpc=vpc, allow_all_outbound=True, security_group_name=f"{vpc_name}-InternetSecurityGroup")
+        internetSecurityGroup.add_ingress_rule(ec2.Peer.any_ipv4(), ec2.Port.tcp(443), "Allow HTTPS from anywhere")
+        intranetSecurityGroup = ec2.SecurityGroup(self, "IntranetSecurityGroup", vpc=vpc, allow_all_outbound=True, security_group_name=f"{vpc_name}-IntranetSecurityGroup")
+        intranetSecurityGroup.add_ingress_rule(ec2.Peer.security_group_id(internetSecurityGroup.id), ec2.Port.all_traffic, "Allow traffic from intranet SG")
