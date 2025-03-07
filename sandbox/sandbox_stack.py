@@ -2,6 +2,10 @@ from aws_cdk import Stack
 from aws_cdk import aws_s3 as s3
 from aws_cdk import RemovalPolicy
 from aws_cdk import aws_ec2 as ec2
+from aws_cdk import aws_ecs_patterns as ecs_patterns
+from aws_cdk import aws_ecs as ecs
+from aws_cdk import aws_iam as iam  
+from aws_cdk import aws_logs as logs
 from constructs import Construct
 from aws_cdk import CfnOutput
 
@@ -39,9 +43,12 @@ class SandboxStack(Stack):
         intranetSecurityGroup = ec2.SecurityGroup(self, "IntranetSecurityGroup", vpc=vpc, allow_all_outbound=True, security_group_name=f"{app_name}-IntranetSecurityGroup")
         intranetSecurityGroup.add_ingress_rule(ec2.Peer.security_group_id(internetSecurityGroup.security_group_id), ec2.Port.all_traffic(), "Allow traffic from internet SG")
 
-        #EC2 Instance
-        instance = ec2.Instance(self, "SandboxInstance", instance_type=ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE2, ec2.InstanceSize.MICRO), machine_image=ec2.MachineImage.from_ssm_parameter(
-            '/aws/service/canonical/ubuntu/server/jammy/stable/current/amd64/hvm/ebs-gp2/ami-id',
-            os=ec2.OperatingSystemType.LINUX
-        ), instance_name=f"{app_name}Instance", vpc=vpc, vpc_subnets=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PRIVATE_ISOLATED), security_group=intranetSecurityGroup)
-        CfnOutput(self, "InstanceOutput", value=instance.instance_id)
+        # #EC2 Instance
+        # instance = ec2.Instance(self, "SandboxInstance", instance_type=ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE2, ec2.InstanceSize.MICRO), machine_image=ec2.MachineImage.from_ssm_parameter(
+        #     '/aws/service/canonical/ubuntu/server/jammy/stable/current/amd64/hvm/ebs-gp2/ami-id',
+        #     os=ec2.OperatingSystemType.LINUX
+        # ), instance_name=f"{app_name}Instance", vpc=vpc, vpc_subnets=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PRIVATE_ISOLATED), security_group=intranetSecurityGroup)
+        # CfnOutput(self, "InstanceOutput", value=instance.instance_id)
+
+        #ECS Cluster
+        cluster = ecs.Cluster(self, "FargateCluster",vpc=vpc,container_insights=True,cluster_name=f"{app_name}Cluster") 
