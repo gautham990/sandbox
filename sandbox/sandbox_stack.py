@@ -24,7 +24,7 @@ class SandboxStack(Stack):
                 ec2.SubnetConfiguration(
                     name=f"{vpc_name}-PrivateSubnet",
                     # subnet_type=ec2.SubnetType.PRIVATE_WITH_EGRESS,
-                    ubnet_type=ec2.SubnetType.PRIVATE_ISOLATED,
+                    subnet_type=ec2.SubnetType.PRIVATE_ISOLATED,
                     cidr_mask=24
                 )
             ],
